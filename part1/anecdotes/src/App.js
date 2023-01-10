@@ -1,5 +1,14 @@
 import { useState } from "react";
 
+const Anecdote = ({ anecdote, votes }) => {
+  return (
+    <div>
+      <p>{anecdote}</p>
+      <p>has {votes} votes</p>
+    </div>
+  );
+};
+
 const App = () => {
   const anecdotes = [
     "If it hurts, do it more often.",
@@ -11,14 +20,27 @@ const App = () => {
     "Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.",
   ];
 
+  const getMostPopularAnecdote = () => {
+    const highestScore = [...points].sort((a, b) => a - b).pop();
+    const anecdote = anecdotes[points.indexOf(highestScore)];
+
+    return {
+      anecdote,
+      votes: highestScore,
+    };
+  };
+
   const [selected, setSelected] = useState(0);
   const [points, setPoints] = useState(Array(anecdotes.length).fill(0));
-
-  console.log(anecdotes, points);
+  const { anecdote: anecdoteWithMostVotes, votes } = getMostPopularAnecdote();
 
   const getNextAnecdote = () => {
     const randomAnecdoteIndex = Math.floor(Math.random() * anecdotes.length);
+    if (randomAnecdoteIndex === selected) {
+      getNextAnecdote();
 
+      return;
+    }
     setSelected(randomAnecdoteIndex);
   };
 
@@ -31,12 +53,14 @@ const App = () => {
 
   return (
     <div>
-      <p>{anecdotes[selected]}</p>
-      <p>has {points[selected]} votes</p>
+      <h2>Anecdote of the day</h2>
+      <Anecdote anecdote={anecdotes[selected]} votes={points[selected]} />
       <div>
         <button onClick={handleVote}>vote</button>
         <button onClick={getNextAnecdote}>next anecdote</button>
       </div>
+      <h2>Anecdote with most votes</h2>
+      <Anecdote anecdote={anecdoteWithMostVotes} votes={votes} />
     </div>
   );
 };
