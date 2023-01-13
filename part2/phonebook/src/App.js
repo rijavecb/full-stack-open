@@ -8,11 +8,29 @@ const App = () => {
     setNewName(event.target.value);
   };
 
+  const isAlreadyAdded = (newPerson) => {
+    let alreadyExists = false
+
+    persons.forEach(person => {
+      if (JSON.stringify(person) === JSON.stringify(newPerson)) {
+        alreadyExists = true
+      }
+    })
+
+    return alreadyExists
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const newPerson = {
       name: newName,
     };
+
+    if (isAlreadyAdded(newPerson)) {
+      alert(`${newName} is already added to phonebook`)
+
+      return
+    }
 
     setPersons(persons.concat(newPerson));
     setNewName("");
