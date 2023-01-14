@@ -14,7 +14,13 @@ const Countries = ({ countries, countryFilter }) => {
 
     if (numberOfCountries <= 10 && numberOfCountries > 1) {
       return filteredCountries.map((country) => {
-        return <p key={country.name.official}>{country.name.official}</p>;
+        return (
+          <Country
+            key={country.name.official}
+            country={country}
+            isDisplayed={false}
+          ></Country>
+        );
       });
     }
 
@@ -23,7 +29,8 @@ const Countries = ({ countries, countryFilter }) => {
         <Country
           key={filteredCountries[0].name.official}
           country={filteredCountries[0]}
-        ></Country>
+          isDisplayed={true}
+        />
       );
     }
   };
