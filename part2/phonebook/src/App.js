@@ -30,14 +30,33 @@ const App = () => {
 
   const isAlreadyAdded = (newPerson) => {
     let alreadyExists = false;
+    let existingId;
 
     persons.forEach((person) => {
       if (person.name === newPerson.name) {
         alreadyExists = true;
+        existingId = person.id;
       }
     });
 
-    return alreadyExists;
+    return [alreadyExists, existingId];
+  };
+
+  const updateNumber = (existingId, newPerson) => {
+    personService
+      .update(existingId, newPerson)
+      .then((returnedPerson) => {
+        setPersons(
+          persons.map((person) =>
+            person.id !== existingId ? person : returnedPerson
+          )
+        );
+        setNewName("");
+        setNewNumber("");
+      })
+      .catch((error) => {
+        alert(`${newPerson.name}'s number couldn't be updated.`);
+      });
   };
 
   const handleSubmit = (event) => {
@@ -47,23 +66,39 @@ const App = () => {
       number: newNumber,
     };
 
-    if (isAlreadyAdded(newPerson)) {
-      alert(`${newName} is already added to phonebook`);
-
-      return;
-    }
-
     if (newNumber.length < 6) {
       alert("Phone number needs to be at least 7 characters long");
 
       return;
     }
 
-    personService.create(newPerson).then(returnedPerson => {
+    const [alreadyExists, existingId] = isAlreadyAdded(newPerson);
+
+    if (alreadyExists && newNumber.length >= 6) {
+      const message = `${newPerson.name} is already added to phonebook, replace the old number with a new one?`;
+      if (window.confirm(message)) updateNumber(existingId, newPerson);
+
+      return;
+    }
+
+    personService.create(newPerson).then((returnedPerson) => {
       setPersons(persons.concat(returnedPerson));
       setNewName("");
       setNewNumber("");
-    })
+    });
+  };
+
+  const deletePerson = (person) => {
+    if (window.confirm(`Delete ${person.name}?`)) {
+      personService
+        .deleteContact(person.id)
+        .then((returnedPerson) => {
+          setPersons(persons.filter((p) => p.id !== person.id));
+        })
+        .catch((error) => {
+          alert(`${person.name} couldn't be deleted from the list.`);
+        });
+    }
   };
 
   const displayedPersons = () => {
@@ -92,7 +127,7 @@ const App = () => {
         onFormSubmit={handleSubmit}
       />
       <h3>Numbers</h3>
-      <Persons persons={displayedPersons()} />
+      <Persons persons={displayedPersons()} deletePerson={deletePerson} />
     </div>
   );
 };

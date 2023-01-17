@@ -1,10 +1,10 @@
-const Persons = ({ persons }) => {
+import Person from "./Person";
+
+const Persons = ({ persons, deletePerson }) => {
   return (
     <div>
       {persons.map((person) => (
-        <p key={person.name}>
-          {person.name} {person.number}
-        </p>
+        <Person key={person.id} person={person} deletePerson={deletePerson} />
       ))}
     </div>
   );
