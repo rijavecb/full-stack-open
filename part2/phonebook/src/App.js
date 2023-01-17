@@ -11,6 +11,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filterQuery, setFilterQuery] = useState("");
   const [message, setMessage] = useState(null);
+  const [messageType, setMessageType] = useState("");
 
   useEffect(() => {
     personService.getAll().then((initialPersons) => {
@@ -57,8 +58,20 @@ const App = () => {
         setNewNumber("");
       })
       .catch((error) => {
-        alert(`${newPerson.name}'s number couldn't be updated.`);
+        displayMessage(
+          `Information of ${newPerson.name} has already been removed from the server`,
+          "error"
+        );
       });
+  };
+
+  const displayMessage = (message, type) => {
+    setMessage(message);
+    setMessageType(type);
+    setTimeout(() => {
+      setMessage(null);
+      setMessageType("");
+    }, 3000);
   };
 
   const handleSubmit = (event) => {
@@ -89,10 +102,7 @@ const App = () => {
       setNewNumber("");
     });
 
-    setMessage(`Added ${newPerson.name}`);
-    setTimeout(() => {
-      setMessage(null);
-    }, 3000);
+    displayMessage(`Added ${newPerson.name}`, "success");
   };
 
   const deletePerson = (person) => {
@@ -103,7 +113,10 @@ const App = () => {
           setPersons(persons.filter((p) => p.id !== person.id));
         })
         .catch((error) => {
-          alert(`${person.name} couldn't be deleted from the list.`);
+          displayMessage(
+            `${person.name} has already been removed from the server`,
+            "error"
+          );
         });
     }
   };
@@ -121,7 +134,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={message} />
+      <Notification message={message} type={messageType} />
       <Filter
         filterQuery={filterQuery}
         onFilterChange={handleFilterQueryChange}
